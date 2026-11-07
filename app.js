@@ -19,7 +19,18 @@ function closeDialog(dialog){dialog.close();}
 $$('dialog').forEach(d=>{d.addEventListener('close',()=>{document.body.classList.remove('modal-open');previousFocus?.focus();});$('.dialog-close',d).addEventListener('click',()=>closeDialog(d));d.addEventListener('click',e=>{if(e.target!==d)return;const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog(d);});});
 $$('[data-project]').forEach(b=>b.addEventListener('click',()=>{const data=projectData[b.dataset.project];$('#detail-image').src=`assets/${data.image}.webp`;$('#detail-image').alt=data.title;$('#detail-title').textContent=data.title;$('#detail-category').textContent=data.category;$('#detail-description').textContent=data.description;openDialog($('#project-dialog'));}));
 
-$('#similar-project')?.addEventListener('click',()=>{$('#project-dialog').close();location.hash='contacto';});
+$('#similar-project')?.addEventListener('click',()=>{
+ const dialog=$('#project-dialog'),contact=$('#contacto');
+ if(!dialog.open||!contact)return;
+ // Let normal dismissal restore focus; the contact action moves focus instead.
+ previousFocus=undefined;
+ dialog.addEventListener('close',()=>{
+  if(location.hash!=='#contacto')location.hash='#contacto';
+  contact.focus({preventScroll:true});
+  contact.scrollIntoView({block:'start'});
+ },{once:true});
+ dialog.close();
+});
 // Self-hosted, MIT-licensed Three.js. No paid services or API calls.
 async function initScene(){
  const THREE=await import('./assets/three.module.js');
